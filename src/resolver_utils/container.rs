@@ -1,7 +1,4 @@
 use futures_util::FutureExt;
-use std::future::Future;
-use std::pin::Pin;
-
 use indexmap::IndexMap;
 
 use crate::extensions::ResolveInfo;
@@ -14,7 +11,7 @@ use crate::{
 ///
 /// This helper trait allows the type to call `resolve_container` on itself in its
 /// `OutputType::resolve` implementation.
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 pub trait ContainerType: OutputType {
     /// This function returns true of type `EmptyMutation` only.
     #[doc(hidden)]
@@ -36,8 +33,6 @@ pub trait ContainerType: OutputType {
         ctx: &ContextSelectionSet<'a>,
         fields: &mut Fields<'a>,
     ) -> ServerResult<()>
-    where
-        Self: Send + Sync,
     {
         fields.add_set(ctx, self)
     }
@@ -50,7 +45,7 @@ pub trait ContainerType: OutputType {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<T: ContainerType> ContainerType for &T {
     async fn resolve_field(&self, ctx: &Context<'_>) -> ServerResult<Option<Value>> {
         T::resolve_field(*self, ctx).await
@@ -128,10 +123,8 @@ async fn resolve_container_inner<'a, T: ContainerType + ?Sized>(
     Ok(Value::Object(map))
 }
 
-type BoxFieldFuture<'a> = Pin<Box<dyn Future<Output = ServerResult<(Name, Value)>> + 'a + Send>>;
-
 /// A set of fields on an container that are being selected.
-pub struct Fields<'a>(Vec<BoxFieldFuture<'a>>);
+pub struct Fields<'a>(Vec<futures_util::future::LocalBoxFuture<'a, ServerResult<(Name, Value)>>>);
 
 impl<'a> Fields<'a> {
     /// Add another set of fields to this set of fields using the given container.
@@ -213,7 +206,7 @@ impl<'a> Fields<'a> {
                                             .unwrap_or_default(),
                                     ))
                                 } else {
-                                    let mut resolve_fut = resolve_fut.boxed();
+                                    let mut resolve_fut = resolve_fut.boxed_local();
 
                                     for directive in &field.node.directives {
                                         if let Some(directive_factory) = ctx

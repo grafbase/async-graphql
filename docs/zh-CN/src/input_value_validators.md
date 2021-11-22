@@ -58,7 +58,7 @@ impl MyValidator {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl CustomValidator<i32> for MyValidator {
     async fn check(&self, value: &i32) -> Result<(), String> {
         if *value == self.expect {

@@ -19,7 +19,7 @@ impl RoleGuard {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if ctx.data_opt::<Role>() == Some(&self.role) {
@@ -61,7 +61,7 @@ impl EqGuard {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl Guard for EqGuard {
     async fn check(&self, _ctx: &Context<'_>) -> Result<()> {
         if self.expect != self.actual {

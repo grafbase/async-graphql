@@ -33,7 +33,7 @@ pub struct ServerError {
     pub message: String,
     /// The source of the error.
     #[serde(skip)]
-    pub source: Option<Arc<dyn Any + Send + Sync>>,
+    pub source: Option<Arc<dyn Any>>,
     /// Where the error occurred.
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub locations: Vec<Pos>,
@@ -105,7 +105,7 @@ impl ServerError {
     /// assert!(err.source::<std::io::Error>().is_some());
     /// # });
     /// ```
-    pub fn source<T: Any + Send + Sync>(&self) -> Option<&T> {
+    pub fn source<T: Any>(&self) -> Option<&T> {
         self.source.as_ref().map(|err| err.downcast_ref()).flatten()
     }
 
@@ -226,7 +226,7 @@ pub struct Error {
     pub message: String,
     /// The source of the error.
     #[serde(skip)]
-    pub source: Option<Arc<dyn Any + Send + Sync>>,
+    pub source: Option<Arc<dyn Any>>,
     /// Extensions to the error.
     #[serde(skip_serializing_if = "error_extensions_is_empty")]
     pub extensions: Option<ErrorExtensionValues>,
@@ -259,7 +259,7 @@ impl Error {
 
     /// Create an error with a type that implements `Display`, and it will also set the
     /// `source` of the error to this value.
-    pub fn new_with_source(source: impl Display + Send + Sync + 'static) -> Self {
+    pub fn new_with_source(source: impl Display + 'static) -> Self {
         Self {
             message: source.to_string(),
             source: Some(Arc::new(source)),
@@ -280,7 +280,7 @@ impl Error {
     }
 }
 
-impl<T: Display + Send + Sync + 'static> From<T> for Error {
+impl<T: Display + 'static> From<T> for Error {
     fn from(e: T) -> Self {
         Self {
             message: e.to_string(),
@@ -303,11 +303,11 @@ pub enum ParseRequestError {
 
     /// The request's syntax was invalid.
     #[error("Invalid request: {0}")]
-    InvalidRequest(Box<dyn std::error::Error + Send + Sync>),
+    InvalidRequest(Box<dyn std::error::Error>),
 
     /// The request's files map was invalid.
     #[error("Invalid files map: {0}")]
-    InvalidFilesMap(Box<dyn std::error::Error + Send + Sync>),
+    InvalidFilesMap(Box<dyn std::error::Error>),
 
     /// The request's multipart data was invalid.
     #[error("Invalid multipart data")]
@@ -418,7 +418,7 @@ pub trait ResultExt<T, E>: Sized {
 // (see example).
 impl<T, E> ResultExt<T, E> for std::result::Result<T, E>
 where
-    E: ErrorExtensions + Send + Sync + 'static,
+    E: ErrorExtensions + 'static,
 {
     fn extend_err<C>(self, cb: C) -> Result<T>
     where

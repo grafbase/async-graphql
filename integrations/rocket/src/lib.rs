@@ -52,7 +52,7 @@ impl GraphQLBatchRequest {
     }
 }
 
-#[rocket::async_trait]
+#[rocket::async_trait(?Send)]
 impl<'r> FromData<'r> for GraphQLBatchRequest {
     type Error = ParseRequestError;
 
@@ -112,7 +112,7 @@ impl GraphQLRequest {
     }
 
     /// Insert some data for this request.
-    pub fn data<D: Any + Send + Sync>(mut self, data: D) -> Self {
+    pub fn data<D: Any>(mut self, data: D) -> Self {
         self.0.data.insert(data);
         self
     }
@@ -170,7 +170,7 @@ impl GraphQLQuery {
     }
 }
 
-#[rocket::async_trait]
+#[rocket::async_trait(?Send)]
 impl<'r> FromData<'r> for GraphQLRequest {
     type Error = ParseRequestError;
 

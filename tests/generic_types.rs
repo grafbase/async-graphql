@@ -260,7 +260,7 @@ pub async fn test_generic_subscription() {
     #[Subscription]
     impl<T: OutputType> MySubscription<T>
     where
-        T: Clone + Send + Sync + Unpin,
+        T: Clone + Unpin,
     {
         async fn values(&self) -> Result<impl Stream<Item = T> + '_> {
             Ok(async_stream::stream! {

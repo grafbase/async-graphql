@@ -46,8 +46,8 @@ impl<T: InputType> InputType for Option<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T: OutputType + Sync> OutputType for Option<T> {
+#[async_trait::async_trait(?Send)]
+impl<T: OutputType> OutputType for Option<T> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
     }

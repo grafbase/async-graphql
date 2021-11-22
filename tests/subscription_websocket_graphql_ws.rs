@@ -5,7 +5,7 @@ use std::time::Duration;
 use async_graphql::http::WebSocketProtocols;
 use async_graphql::*;
 use futures_channel::mpsc;
-use futures_util::stream::{BoxStream, Stream, StreamExt};
+use futures_util::stream::{LocalBoxStream, Stream, StreamExt};
 use futures_util::SinkExt;
 
 #[tokio::test]
@@ -520,7 +520,7 @@ pub async fn test_stream_drop() {
     type Dropped = Arc<Mutex<bool>>;
 
     struct TestStream {
-        inner: BoxStream<'static, i32>,
+        inner: LocalBoxStream<'static, i32>,
         dropped: Dropped,
     }
 

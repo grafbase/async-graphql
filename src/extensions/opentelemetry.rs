@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_graphql_parser::types::ExecutableDocument;
 use async_graphql_value::Variables;
-use futures_util::stream::BoxStream;
+use futures_util::stream::LocalBoxStream;
 use futures_util::TryFutureExt;
 use opentelemetry::trace::{FutureExt, SpanKind, TraceContextExt, Tracer};
 use opentelemetry::{Context as OpenTelemetryContext, Key};
@@ -31,7 +31,7 @@ impl<T> OpenTelemetry<T> {
     /// Use `tracer` to create an OpenTelemetry extension.
     pub fn new(tracer: T) -> OpenTelemetry<T>
     where
-        T: Tracer + Send + Sync,
+        T: Tracer,
     {
         Self {
             tracer: Arc::new(tracer),
@@ -39,7 +39,7 @@ impl<T> OpenTelemetry<T> {
     }
 }
 
-impl<T: Tracer + Send + Sync> ExtensionFactory for OpenTelemetry<T> {
+impl<T: Tracer> ExtensionFactory for OpenTelemetry<T> {
     fn create(&self) -> Arc<dyn Extension> {
         Arc::new(OpenTelemetryExtension {
             tracer: self.tracer.clone(),
@@ -51,8 +51,8 @@ struct OpenTelemetryExtension<T> {
     tracer: Arc<T>,
 }
 
-#[async_trait::async_trait]
-impl<T: Tracer + Send + Sync> Extension for OpenTelemetryExtension<T> {
+#[async_trait::async_trait(?Send)]
+impl<T: Tracer> Extension for OpenTelemetryExtension<T> {
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         next.run(ctx)
             .with_context(OpenTelemetryContext::current_with_span(
@@ -67,9 +67,9 @@ impl<T: Tracer + Send + Sync> Extension for OpenTelemetryExtension<T> {
     fn subscribe<'s>(
         &self,
         ctx: &ExtensionContext<'_>,
-        stream: BoxStream<'s, Response>,
+        stream: LocalBoxStream<'s, Response>,
         next: NextSubscribe<'_>,
-    ) -> BoxStream<'s, Response> {
+    ) -> LocalBoxStream<'s, Response> {
         Box::pin(
             next.run(ctx, stream)
                 .with_context(OpenTelemetryContext::current_with_span(

@@ -6,7 +6,7 @@ use async_graphql::*;
 use reqwest::{header, StatusCode};
 use serde_json::json;
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[async_std::test]
 async fn quickstart() -> Result<()> {

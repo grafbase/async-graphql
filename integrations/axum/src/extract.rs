@@ -58,10 +58,10 @@ pub mod rejection {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<B> FromRequest<B> for GraphQLRequest
 where
-    B: http_body::Body + Unpin + Send + Sync + 'static,
+    B: http_body::Body + Unpin + 'static,
     B::Data: Into<Bytes>,
     B::Error: Into<BoxError>,
 {
@@ -88,10 +88,10 @@ impl GraphQLBatchRequest {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<B> FromRequest<B> for GraphQLBatchRequest
 where
-    B: http_body::Body + Unpin + Send + Sync + 'static,
+    B: http_body::Body + Unpin + 'static,
     B::Data: Into<Bytes>,
     B::Error: Into<BoxError>,
 {

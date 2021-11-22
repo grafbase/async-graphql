@@ -68,7 +68,7 @@ pub async fn test_complex_object() {
 
 #[tokio::test]
 pub async fn test_complex_object_with_generic_context_data() {
-    trait MyData: Send + Sync {
+    trait MyData {
         fn answer(&self) -> i64;
     }
 

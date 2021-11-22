@@ -98,8 +98,8 @@ pub async fn query<Cursor, Node, ConnectionFields, EdgeFields, F, R, E>(
     f: F,
 ) -> Result<Connection<Cursor, Node, ConnectionFields, EdgeFields>>
 where
-    Cursor: CursorType + Send + Sync,
-    <Cursor as CursorType>::Error: Display + Send + Sync + 'static,
+    Cursor: CursorType,
+    <Cursor as CursorType>::Error: Display + 'static,
     F: FnOnce(Option<Cursor>, Option<Cursor>, Option<usize>, Option<usize>) -> R,
     R: Future<Output = Result<Connection<Cursor, Node, ConnectionFields, EdgeFields>, E>>,
     E: Into<Error>,
@@ -204,8 +204,8 @@ pub async fn query_with<Cursor, T, F, R, E>(
     f: F,
 ) -> Result<T>
 where
-    Cursor: CursorType + Send + Sync,
-    <Cursor as CursorType>::Error: Display + Send + Sync + 'static,
+    Cursor: CursorType,
+    <Cursor as CursorType>::Error: Display + 'static,
     F: FnOnce(Option<Cursor>, Option<Cursor>, Option<usize>, Option<usize>) -> R,
     R: Future<Output = Result<T, E>>,
     E: Into<Error>,

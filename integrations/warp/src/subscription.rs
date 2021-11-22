@@ -57,9 +57,9 @@ pub fn graphql_subscription<Query, Mutation, Subscription>(
     schema: Schema<Query, Mutation, Subscription>,
 ) -> impl Filter<Extract = (impl Reply,), Error = Rejection> + Clone
 where
-    Query: ObjectType + Sync + Send + 'static,
-    Mutation: ObjectType + Sync + Send + 'static,
-    Subscription: SubscriptionType + Send + Sync + 'static,
+    Query: ObjectType + 'static,
+    Mutation: ObjectType + 'static,
+    Subscription: SubscriptionType + 'static,
 {
     warp::ws()
         .and(graphql_protocol())
@@ -228,7 +228,7 @@ where
     Query: ObjectType + 'static,
     Mutation: ObjectType + 'static,
     Subscription: SubscriptionType + 'static,
-    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + Send + Sync + 'static,
+    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + 'static,
     OnConnInitFut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
 {
     /// Specify the initial subscription context data, usually you can get something from the
@@ -246,7 +246,7 @@ where
         callback: OnConnInit2,
     ) -> GraphQLWebSocket<Sink, Stream, Query, Mutation, Subscription, OnConnInit2>
     where
-        OnConnInit2: Fn(serde_json::Value) -> Fut + Send + Sync + 'static,
+        OnConnInit2: Fn(serde_json::Value) -> Fut + 'static,
         Fut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
     {
         GraphQLWebSocket {

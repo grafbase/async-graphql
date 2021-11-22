@@ -46,7 +46,7 @@ where
     Query: ObjectType + 'static,
     Mutation: ObjectType + 'static,
     Subscription: SubscriptionType + 'static,
-    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + Clone + Send + Sync + 'static,
+    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + Clone + 'static,
     OnConnInitFut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
 {
     /// Specify a callback function to be called when the connection is initialized.
@@ -58,7 +58,7 @@ where
         callback: OnConnInit2,
     ) -> GraphQLSubscription<Query, Mutation, Subscription, OnConnInit2>
     where
-        OnConnInit2: Fn(serde_json::Value) -> Fut + Clone + Send + Sync + 'static,
+        OnConnInit2: Fn(serde_json::Value) -> Fut + Clone + 'static,
         Fut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
     {
         GraphQLSubscription {
@@ -68,7 +68,7 @@ where
     }
 
     /// Consumes this builder to create a tide endpoint.
-    pub fn build<S: Send + Sync + Clone + 'static>(self) -> impl Endpoint<S> {
+    pub fn build<S: Clone + 'static>(self) -> impl Endpoint<S> {
         tide_websockets::WebSocket::<S, _>::new(move |request, connection| {
             let schema = self.schema.clone();
             let on_connection_init = self.on_connection_init.clone();

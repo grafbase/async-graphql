@@ -9,7 +9,7 @@ use std::task::{Context, Poll};
 use futures_util::future::Ready;
 use futures_util::stream::Stream;
 use futures_util::FutureExt;
-use futures_util::{future::BoxFuture, StreamExt};
+use futures_util::{future::LocalBoxFuture, StreamExt};
 use pin_project_lite::pin_project;
 use serde::{Deserialize, Serialize};
 
@@ -67,11 +67,11 @@ pin_project! {
     /// - [graphql-ws](https://github.com/enisdenjo/graphql-ws/blob/master/PROTOCOL.md)
     pub struct WebSocket<S, Query, Mutation, Subscription, OnInit> {
         on_connection_init: Option<OnInit>,
-        init_fut: Option<BoxFuture<'static, Result<Data>>>,
+        init_fut: Option<LocalBoxFuture<'static, Result<Data>>>,
         connection_data: Option<Data>,
         data: Option<Arc<Data>>,
         schema: Schema<Query, Mutation, Subscription>,
-        streams: HashMap<String, Pin<Box<dyn Stream<Item = Response> + Send>>>,
+        streams: HashMap<String, Pin<Box<dyn Stream<Item = Response>>>>,
         #[pin]
         stream: S,
         protocol: Protocols,
@@ -153,8 +153,8 @@ where
         callback: F,
     ) -> WebSocket<S, Query, Mutation, Subscription, F>
     where
-        F: FnOnce(serde_json::Value) -> R + Send + 'static,
-        R: Future<Output = Result<Data>> + Send + 'static,
+        F: FnOnce(serde_json::Value) -> R + 'static,
+        R: Future<Output = Result<Data>> + 'static,
     {
         WebSocket {
             on_connection_init: Some(callback),
@@ -176,8 +176,8 @@ where
     Query: ObjectType + 'static,
     Mutation: ObjectType + 'static,
     Subscription: SubscriptionType + 'static,
-    OnInit: FnOnce(serde_json::Value) -> InitFut + Send + 'static,
-    InitFut: Future<Output = Result<Data>> + Send + 'static,
+    OnInit: FnOnce(serde_json::Value) -> InitFut + 'static,
+    InitFut: Future<Output = Result<Data>> + 'static,
 {
     type Item = WsMessage;
 

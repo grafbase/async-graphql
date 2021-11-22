@@ -82,7 +82,7 @@ where
     Query: ObjectType + 'static,
     Mutation: ObjectType + 'static,
     Subscription: SubscriptionType + 'static,
-    TideState: Clone + Send + Sync + 'static,
+    TideState: Clone + 'static,
 {
     async fn call(&self, request: Request<TideState>) -> tide::Result {
         respond(
@@ -100,14 +100,14 @@ where
 }
 
 /// Convert a Tide request to a GraphQL request.
-pub async fn receive_request<State: Clone + Send + Sync + 'static>(
+pub async fn receive_request<State: Clone + 'static>(
     request: Request<State>,
 ) -> tide::Result<async_graphql::Request> {
     receive_request_opts(request, Default::default()).await
 }
 
 /// Convert a Tide request to a GraphQL request with options on how to receive multipart.
-pub async fn receive_request_opts<State: Clone + Send + Sync + 'static>(
+pub async fn receive_request_opts<State: Clone + 'static>(
     request: Request<State>,
     opts: MultipartOptions,
 ) -> tide::Result<async_graphql::Request> {
@@ -118,14 +118,14 @@ pub async fn receive_request_opts<State: Clone + Send + Sync + 'static>(
 }
 
 /// Convert a Tide request to a GraphQL batch request.
-pub async fn receive_batch_request<State: Clone + Send + Sync + 'static>(
+pub async fn receive_batch_request<State: Clone + 'static>(
     request: Request<State>,
 ) -> tide::Result<async_graphql::BatchRequest> {
     receive_batch_request_opts(request, Default::default()).await
 }
 
 /// Convert a Tide request to a GraphQL batch request with options on how to receive multipart.
-pub async fn receive_batch_request_opts<State: Clone + Send + Sync + 'static>(
+pub async fn receive_batch_request_opts<State: Clone + 'static>(
     mut request: Request<State>,
     opts: MultipartOptions,
 ) -> tide::Result<async_graphql::BatchRequest> {

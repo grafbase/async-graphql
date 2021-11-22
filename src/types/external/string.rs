@@ -25,7 +25,7 @@ impl ScalarType for String {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl OutputType for str {
     fn type_name() -> Cow<'static, str> {
         Cow::Borrowed("String")

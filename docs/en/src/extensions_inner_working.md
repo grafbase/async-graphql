@@ -154,9 +154,9 @@ The `subscribe` lifecycle has the same behavior as the `request` but for a `Subs
 fn subscribe<'s>(
     &self,
     ctx: &ExtensionContext<'_>,
-    stream: BoxStream<'s, Response>,
+    stream: LocalBoxStream<'s, Response>,
     next: NextSubscribe<'_>,
-) -> BoxStream<'s, Response> {
+) -> LocalBoxStream<'s, Response> {
     next.run(ctx, stream)
 }
 ``` 

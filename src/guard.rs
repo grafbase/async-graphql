@@ -5,7 +5,7 @@ use crate::{Context, Result};
 /// Field guard
 ///
 /// Guard is a pre-condition for a field that is resolved if `Ok(())` is returned, otherwise an error is returned.
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 pub trait Guard {
     /// Check whether the guard will allow access to the field.
     async fn check(&self, ctx: &Context<'_>) -> Result<()>;
@@ -29,8 +29,8 @@ impl<T: Guard> GuardExt for T {}
 /// Guard for [`GuardExt::and`](trait.GuardExt.html#method.and).
 pub struct And<A: Guard, B: Guard>(A, B);
 
-#[async_trait::async_trait]
-impl<A: Guard + Send + Sync, B: Guard + Send + Sync> Guard for And<A, B> {
+#[async_trait::async_trait(?Send)]
+impl<A: Guard, B: Guard> Guard for And<A, B> {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         self.0.check(ctx).await?;
         self.1.check(ctx).await
@@ -40,8 +40,8 @@ impl<A: Guard + Send + Sync, B: Guard + Send + Sync> Guard for And<A, B> {
 /// Guard for [`GuardExt::or`](trait.GuardExt.html#method.or).
 pub struct Or<A: Guard, B: Guard>(A, B);
 
-#[async_trait::async_trait]
-impl<A: Guard + Send + Sync, B: Guard + Send + Sync> Guard for Or<A, B> {
+#[async_trait::async_trait(?Send)]
+impl<A: Guard, B: Guard> Guard for Or<A, B> {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if self.0.check(ctx).await.is_ok() {
             return Ok(());

@@ -4,7 +4,7 @@ use crate::parser::types::Field;
 use crate::resolver_utils::resolve_list;
 use crate::{registry, ContextSelectionSet, OutputType, Positioned, ServerResult, Value};
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<'a, T: OutputType + 'a> OutputType for &'a [T] {
     fn type_name() -> Cow<'static, str> {
         Cow::Owned(format!("[{}]", T::qualified_type_name()))

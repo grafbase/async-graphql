@@ -16,7 +16,7 @@ use poem::{http, Endpoint, FromRequest, IntoResponse, Request, RequestBody, Resp
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct GraphQLProtocol(pub WebSocketProtocols);
 
-#[poem::async_trait]
+#[poem::async_trait(?Send)]
 impl<'a> FromRequest<'a> for GraphQLProtocol {
     type Error = StatusCode;
 
@@ -78,7 +78,7 @@ impl<Query, Mutation, Subscription> GraphQLSubscription<Query, Mutation, Subscri
     }
 }
 
-#[poem::async_trait]
+#[poem::async_trait(?Send)]
 impl<Query, Mutation, Subscription> Endpoint for GraphQLSubscription<Query, Mutation, Subscription>
 where
     Query: ObjectType + 'static,
@@ -178,7 +178,7 @@ where
     Query: ObjectType + 'static,
     Mutation: ObjectType + 'static,
     Subscription: SubscriptionType + 'static,
-    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + Send + Sync + 'static,
+    OnConnInit: Fn(serde_json::Value) -> OnConnInitFut + 'static,
     OnConnInitFut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
 {
     /// Specify the initial subscription context data, usually you can get something from the
@@ -196,7 +196,7 @@ where
         callback: OnConnInit2,
     ) -> GraphQLWebSocket<Sink, Stream, Query, Mutation, Subscription, OnConnInit2>
     where
-        OnConnInit2: Fn(serde_json::Value) -> Fut + Send + Sync + 'static,
+        OnConnInit2: Fn(serde_json::Value) -> Fut + 'static,
         Fut: Future<Output = async_graphql::Result<Data>> + Send + 'static,
     {
         GraphQLWebSocket {

@@ -14,7 +14,7 @@ use crate::{
 #[doc(hidden)]
 pub struct MergedObject<A, B>(pub A, pub B);
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<A, B> ContainerType for MergedObject<A, B>
 where
     A: ContainerType,
@@ -37,7 +37,7 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<A, B> OutputType for MergedObject<A, B>
 where
     A: OutputType,
@@ -95,7 +95,7 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<A, B> SubscriptionType for MergedObject<A, B>
 where
     A: SubscriptionType,

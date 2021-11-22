@@ -150,9 +150,9 @@ async fn resolve(
 fn subscribe<'s>(
     &self,
     ctx: &ExtensionContext<'_>,
-    stream: BoxStream<'s, Response>,
+    stream: LocalBoxStream<'s, Response>,
     next: NextSubscribe<'_>,
-) -> BoxStream<'s, Response> {
+) -> LocalBoxStream<'s, Response> {
     next.run(ctx, stream)
 }
 ``` 

@@ -4,7 +4,7 @@ use crate::registry::Registry;
 use crate::{Context, ContextDirective, ServerResult, Value};
 
 #[doc(hidden)]
-pub trait CustomDirectiveFactory: Send + Sync + 'static {
+pub trait CustomDirectiveFactory: 'static {
     fn name(&self) -> &'static str;
 
     fn register(&self, registry: &mut Registry);
@@ -17,7 +17,7 @@ pub trait CustomDirectiveFactory: Send + Sync + 'static {
 }
 
 /// Represents a custom directive.
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 #[allow(unused_variables)]
 pub trait CustomDirective: Sync + Send + 'static {
     /// Called at resolve field.

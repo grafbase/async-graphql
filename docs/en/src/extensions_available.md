@@ -15,8 +15,8 @@ To improve network performance for large queries, you can enable this Persisted 
 
 This extension doesn't force you to use some cache strategy, you can choose the caching strategy you want, you'll just have to implement the `CacheStorage` trait:
 ```rust
-#[async_trait::async_trait]
-pub trait CacheStorage: Send + Sync + Clone + 'static {
+#[async_trait::async_trait(?Send)]
+pub trait CacheStorage: Clone + 'static {
     /// Load the query by `key`.
     async fn get(&self, key: String) -> Option<String>;
     /// Save the query by `key`.

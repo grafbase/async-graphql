@@ -39,10 +39,10 @@ impl<C: CursorType, T> Edge<C, T, EmptyFields> {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<C, T, E> ContainerType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType,
     T: OutputType,
     E: ObjectType,
 {
@@ -60,10 +60,10 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<C, T, E> OutputType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType,
     T: OutputType,
     E: ObjectType,
 {
@@ -145,7 +145,7 @@ where
 
 impl<C, T, E> ObjectType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType,
     T: OutputType,
     E: ObjectType,
 {

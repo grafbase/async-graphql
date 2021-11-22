@@ -21,7 +21,7 @@ pub(crate) struct QueryRoot<T> {
     pub(crate) inner: T,
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<T: ObjectType> ContainerType for QueryRoot<T> {
     async fn resolve_field(&self, ctx: &Context<'_>) -> ServerResult<Option<Value>> {
         if !ctx.schema_env.registry.disable_introspection && !ctx.query_env.disable_introspection {
@@ -84,7 +84,7 @@ impl<T: ObjectType> ContainerType for QueryRoot<T> {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl<T: ObjectType> OutputType for QueryRoot<T> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()

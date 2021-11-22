@@ -26,7 +26,7 @@ use std::any::{Any, TypeId};
 use std::future::Future;
 use std::sync::Arc;
 
-use futures_util::stream::BoxStream;
+use futures_util::stream::LocalBoxStream;
 
 use crate::parser::types::ExecutableDocument;
 use crate::{
@@ -64,7 +64,7 @@ impl<'a> ExtensionContext<'a> {
     /// # Errors
     ///
     /// Returns a `Error` if the specified type data does not exist.
-    pub fn data<D: Any + Send + Sync>(&self) -> Result<&'a D> {
+    pub fn data<D: Any>(&self) -> Result<&'a D> {
         self.data_opt::<D>().ok_or_else(|| {
             Error::new(format!(
                 "Data `{}` does not exist.",
@@ -78,13 +78,13 @@ impl<'a> ExtensionContext<'a> {
     /// # Panics
     ///
     /// It will panic if the specified data type does not exist.
-    pub fn data_unchecked<D: Any + Send + Sync>(&self) -> &'a D {
+    pub fn data_unchecked<D: Any>(&self) -> &'a D {
         self.data_opt::<D>()
             .unwrap_or_else(|| panic!("Data `{}` does not exist.", std::any::type_name::<D>()))
     }
 
     /// Gets the global data defined in the `Context` or `Schema` or `None` if the specified type data does not exist.
-    pub fn data_opt<D: Any + Send + Sync>(&self) -> Option<&'a D> {
+    pub fn data_opt<D: Any>(&self) -> Option<&'a D> {
         self.query_data
             .and_then(|query_data| query_data.get(&TypeId::of::<D>()))
             .or_else(|| self.session_data.get(&TypeId::of::<D>()))
@@ -111,17 +111,17 @@ pub struct ResolveInfo<'a> {
     pub alias: Option<&'a str>,
 }
 
-type RequestFut<'a> = &'a mut (dyn Future<Output = Response> + Send + Unpin);
+type RequestFut<'a> = &'a mut (dyn Future<Output = Response> + Unpin);
 
-type ParseFut<'a> = &'a mut (dyn Future<Output = ServerResult<ExecutableDocument>> + Send + Unpin);
+type ParseFut<'a> = &'a mut (dyn Future<Output = ServerResult<ExecutableDocument>> + Unpin);
 
 type ValidationFut<'a> =
-    &'a mut (dyn Future<Output = Result<ValidationResult, Vec<ServerError>>> + Send + Unpin);
+    &'a mut (dyn Future<Output = Result<ValidationResult, Vec<ServerError>>> + Unpin);
 
-type ExecuteFut<'a> = &'a mut (dyn Future<Output = Response> + Send + Unpin);
+type ExecuteFut<'a> = &'a mut (dyn Future<Output = Response> + Unpin);
 
 /// A future type used to resolve the field
-pub type ResolveFut<'a> = &'a mut (dyn Future<Output = ServerResult<Option<Value>>> + Send + Unpin);
+pub type ResolveFut<'a> = &'a mut (dyn Future<Output = ServerResult<Option<Value>>> + Unpin);
 
 /// The remainder of a extension chain for request.
 pub struct NextRequest<'a> {
@@ -158,8 +158,8 @@ impl<'a> NextSubscribe<'a> {
     pub fn run<'s>(
         self,
         ctx: &ExtensionContext<'_>,
-        stream: BoxStream<'s, Response>,
-    ) -> BoxStream<'s, Response> {
+        stream: LocalBoxStream<'s, Response>,
+    ) -> LocalBoxStream<'s, Response> {
         if let Some((first, next)) = self.chain.split_first() {
             first.subscribe(ctx, stream, NextSubscribe { chain: next })
         } else {
@@ -303,8 +303,8 @@ impl<'a> NextResolve<'a> {
 }
 
 /// Represents a GraphQL extension
-#[async_trait::async_trait]
-pub trait Extension: Sync + Send + 'static {
+#[async_trait::async_trait(?Send)]
+pub trait Extension: 'static {
     /// Called at start query/mutation request.
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         next.run(ctx).await
@@ -314,9 +314,9 @@ pub trait Extension: Sync + Send + 'static {
     fn subscribe<'s>(
         &self,
         ctx: &ExtensionContext<'_>,
-        stream: BoxStream<'s, Response>,
+        stream: LocalBoxStream<'s, Response>,
         next: NextSubscribe<'_>,
-    ) -> BoxStream<'s, Response> {
+    ) -> LocalBoxStream<'s, Response> {
         next.run(ctx, stream)
     }
 
@@ -374,7 +374,7 @@ pub trait Extension: Sync + Send + 'static {
 /// Extension factory
 ///
 /// Used to create an extension instance.
-pub trait ExtensionFactory: Send + Sync + 'static {
+pub trait ExtensionFactory: 'static {
     /// Create an extended instance.
     fn create(&self) -> Arc<dyn Extension>;
 }
@@ -430,7 +430,7 @@ impl Extensions {
         next.run(&self.create_context()).await
     }
 
-    pub fn subscribe<'s>(&self, stream: BoxStream<'s, Response>) -> BoxStream<'s, Response> {
+    pub fn subscribe<'s>(&self, stream: LocalBoxStream<'s, Response>) -> LocalBoxStream<'s, Response> {
         let next = NextSubscribe {
             chain: &self.extensions,
         };

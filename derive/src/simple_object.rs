@@ -274,7 +274,7 @@ pub fn generate(object_args: &args::SimpleObject) -> GeneratorResult<TokenStream
             }
 
             #[allow(clippy::all, clippy::pedantic)]
-            #[#crate_name::async_trait::async_trait]
+            #[#crate_name::async_trait::async_trait(?Send)]
 
             impl #impl_generics #crate_name::resolver_utils::ContainerType for #ident #ty_generics #where_clause {
                 async fn resolve_field(&self, ctx: &#crate_name::Context<'_>) -> #crate_name::ServerResult<::std::option::Option<#crate_name::Value>> {
@@ -285,7 +285,7 @@ pub fn generate(object_args: &args::SimpleObject) -> GeneratorResult<TokenStream
             }
 
             #[allow(clippy::all, clippy::pedantic)]
-            #[#crate_name::async_trait::async_trait]
+            #[#crate_name::async_trait::async_trait(?Send)]
             impl #impl_generics #crate_name::OutputType for #ident #ty_generics #where_clause {
                 fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                     ::std::borrow::Cow::Borrowed(#gql_typename)
@@ -361,7 +361,7 @@ pub fn generate(object_args: &args::SimpleObject) -> GeneratorResult<TokenStream
 
             let expanded = quote! {
                 #[allow(clippy::all, clippy::pedantic)]
-                #[#crate_name::async_trait::async_trait]
+                #[#crate_name::async_trait::async_trait(?Send)]
                 impl #crate_name::resolver_utils::ContainerType for #concrete_type {
                     async fn resolve_field(&self, ctx: &#crate_name::Context<'_>) -> #crate_name::ServerResult<::std::option::Option<#crate_name::Value>> {
                         #complex_resolver
@@ -370,7 +370,7 @@ pub fn generate(object_args: &args::SimpleObject) -> GeneratorResult<TokenStream
                 }
 
                 #[allow(clippy::all, clippy::pedantic)]
-                #[#crate_name::async_trait::async_trait]
+                #[#crate_name::async_trait::async_trait(?Send)]
                 impl #crate_name::OutputType for #concrete_type {
                     fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                         ::std::borrow::Cow::Borrowed(#gql_typename)
