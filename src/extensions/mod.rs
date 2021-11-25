@@ -305,7 +305,7 @@ impl<'a> NextResolve<'a> {
 /// Represents a GraphQL extension
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-pub trait Extension: Sync + Send + 'static {
+pub trait Extension: Send + Sync + 'static {
     /// Called at start query/mutation request.
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         next.run(ctx).await

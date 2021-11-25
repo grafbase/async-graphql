@@ -26,10 +26,10 @@ use crate::{
 ///
 /// This is a type map, allowing you to store anything inside it.
 #[derive(Default)]
-pub struct Data(FnvHashMap<TypeId, Box<dyn Any + Sync + Send>>);
+pub struct Data(FnvHashMap<TypeId, Box<dyn Any + Send + Sync>>);
 
 impl Deref for Data {
-    type Target = FnvHashMap<TypeId, Box<dyn Any + Sync + Send>>;
+    type Target = FnvHashMap<TypeId, Box<dyn Any + Send + Sync>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0

@@ -20,7 +20,7 @@ pub trait CustomDirectiveFactory: Send + Sync + 'static {
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 #[allow(unused_variables)]
-pub trait CustomDirective: Sync + Send + 'static {
+pub trait CustomDirective: Send + Sync + 'static {
     /// Called at resolve field.
     async fn resolve_field(
         &self,

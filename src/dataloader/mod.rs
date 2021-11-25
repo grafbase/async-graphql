@@ -155,7 +155,7 @@ pub trait Loader<K: Send + Sync + Hash + Eq + Clone + 'static>: Send + Sync + 's
 ///
 /// Reference: <https://github.com/facebook/dataloader>
 pub struct DataLoader<T, C = NoCache> {
-    requests: Mutex<FnvHashMap<TypeId, Box<dyn Any + Sync + Send>>>,
+    requests: Mutex<FnvHashMap<TypeId, Box<dyn Any + Send + Sync>>>,
     cache_factory: C,
     delay: Duration,
     max_batch_size: usize,
