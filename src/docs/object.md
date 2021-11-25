@@ -144,7 +144,7 @@ Implements GraphQL Object for trait object.
 ```rust
 use async_graphql::*;
 
-trait MyTrait: Send + Sync {
+trait MyTrait: crate::SendAndSyncOrNot {
     fn name(&self) -> &str;
 }
 

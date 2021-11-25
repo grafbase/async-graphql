@@ -43,7 +43,7 @@ impl<C: CursorType, T> Edge<C, T, EmptyFields> {
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, E> ContainerType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     E: ObjectType,
 {
@@ -65,7 +65,7 @@ where
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, E> OutputType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     E: ObjectType,
 {
@@ -147,7 +147,7 @@ where
 
 impl<C, T, E> ObjectType for Edge<C, T, E>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     E: ObjectType,
 {

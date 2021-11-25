@@ -19,7 +19,7 @@ struct PersistedQuery {
 /// Cache storage for persisted queries.
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-pub trait CacheStorage: Send + Sync + Clone + 'static {
+pub trait CacheStorage: crate::SendAndSyncOrNot + Clone + 'static {
     /// Load the query by `key`.
     async fn get(&self, key: String) -> Option<String>;
 

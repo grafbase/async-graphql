@@ -123,7 +123,7 @@ impl<C, T, EC, EE> Connection<C, T, EC, EE> {
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, EC, EE> ContainerType for Connection<C, T, EC, EE>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     EC: ObjectType,
     EE: ObjectType,
@@ -155,7 +155,7 @@ where
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, EC, EE> OutputType for Connection<C, T, EC, EE>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     EC: ObjectType,
     EE: ObjectType,
@@ -241,7 +241,7 @@ where
 
 impl<C, T, EC, EE> ObjectType for Connection<C, T, EC, EE>
 where
-    C: CursorType + Send + Sync,
+    C: CursorType + crate::SendAndSyncOrNot,
     T: OutputType,
     EC: ObjectType,
     EE: ObjectType,

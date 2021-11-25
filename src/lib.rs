@@ -124,6 +124,8 @@
 //! Now a HTML report is available at `benchmark/target/criterion/report`.
 //!
 
+#![feature(trait_alias)]
+
 #![deny(clippy::all)]
 // #![deny(clippy::pedantic)]
 #![deny(clippy::inefficient_to_string)]
@@ -242,6 +244,12 @@ pub type FieldError = Error;
 /// An alias of [async_graphql::Result](type.Result.html). Present for backward compatibility
 /// reasons.
 pub type FieldResult<T> = Result<T>;
+
+#[cfg(feature = "single-threaded-runtime")]
+pub(crate) trait SendAndSyncOrNot = crate::SendAndSyncOrNot;
+
+#[cfg(not(feature = "single-threaded-runtime"))]
+pub(crate) trait SendAndSyncOrNot =;
 
 #[doc = include_str!("docs/complex_object.md")]
 pub use async_graphql_derive::ComplexObject;

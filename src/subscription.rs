@@ -10,7 +10,7 @@ use crate::{
 };
 
 /// A GraphQL subscription object
-pub trait SubscriptionType: Send + Sync {
+pub trait SubscriptionType: crate::SendAndSyncOrNot {
     /// Type the name.
     fn type_name() -> Cow<'static, str>;
 

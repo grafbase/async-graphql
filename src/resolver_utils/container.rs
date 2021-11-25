@@ -38,7 +38,7 @@ pub trait ContainerType: OutputType {
         fields: &mut Fields<'a>,
     ) -> ServerResult<()>
     where
-        Self: Send + Sync,
+        Self: crate::SendAndSyncOrNot,
     {
         fields.add_set(ctx, self)
     }

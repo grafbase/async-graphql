@@ -12,7 +12,7 @@ use crate::{
 #[Scalar(internal, name = "JSONObject")]
 impl<K, T> ScalarType for BTreeMap<K, T>
 where
-    K: ToString + FromStr + Ord + Send + Sync,
+    K: ToString + FromStr + Ord + crate::SendAndSyncOrNot,
     K::Err: Display,
     T: OutputType + InputType,
 {

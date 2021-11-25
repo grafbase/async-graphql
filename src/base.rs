@@ -16,7 +16,7 @@ pub trait Description {
 }
 
 /// Represents a GraphQL input type.
-pub trait InputType: Send + Sync + Sized {
+pub trait InputType: crate::SendAndSyncOrNot + Sized {
     /// The raw type used for validator.
     ///
     /// Usually it is `Self`, but the wrapper type is its internal type.
@@ -57,7 +57,7 @@ pub trait InputType: Send + Sync + Sized {
 /// Represents a GraphQL output type.
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-pub trait OutputType: Send + Sync {
+pub trait OutputType: crate::SendAndSyncOrNot {
     /// Type the name.
     fn type_name() -> Cow<'static, str>;
 
@@ -107,7 +107,7 @@ impl<T: OutputType + ?Sized> OutputType for &T {
 
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-impl<T: OutputType + Sync, E: Into<Error> + Send + Sync + Clone> OutputType for Result<T, E> {
+impl<T: OutputType + Sync, E: Into<Error> + crate::SendAndSyncOrNot + Clone> OutputType for Result<T, E> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
     }

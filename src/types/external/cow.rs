@@ -9,7 +9,7 @@ use crate::{registry, ContextSelectionSet, OutputType, Positioned, ServerResult,
 impl<'a, T> OutputType for Cow<'a, T>
 where
     T: OutputType + ToOwned + ?Sized,
-    <T as ToOwned>::Owned: Send + Sync,
+    <T as ToOwned>::Owned: crate::SendAndSyncOrNot,
 {
     fn type_name() -> Cow<'static, str> {
         T::type_name()

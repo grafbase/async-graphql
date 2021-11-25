@@ -74,12 +74,12 @@ use futures_timer::Delay;
 pub use cache::{CacheFactory, CacheStorage, HashMapCache, LruCache, NoCache};
 
 #[allow(clippy::type_complexity)]
-struct ResSender<K: Send + Sync + Hash + Eq + Clone + 'static, T: Loader<K>> {
+struct ResSender<K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static, T: Loader<K>> {
     use_cache_values: HashMap<K, T::Value>,
     tx: oneshot::Sender<Result<HashMap<K, T::Value>, T::Error>>,
 }
 
-struct Requests<K: Send + Sync + Hash + Eq + Clone + 'static, T: Loader<K>> {
+struct Requests<K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static, T: Loader<K>> {
     keys: HashSet<K>,
     pending: Vec<(HashSet<K>, ResSender<K, T>)>,
     cache_storage: Box<dyn CacheStorage<Key = K, Value = T::Value>>,
@@ -88,7 +88,7 @@ struct Requests<K: Send + Sync + Hash + Eq + Clone + 'static, T: Loader<K>> {
 
 type KeysAndSender<K, T> = (HashSet<K>, Vec<(HashSet<K>, ResSender<K, T>)>);
 
-impl<K: Send + Sync + Hash + Eq + Clone + 'static, T: Loader<K>> Requests<K, T> {
+impl<K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static, T: Loader<K>> Requests<K, T> {
     fn new<C: CacheFactory>(cache_factory: &C) -> Self {
         Self {
             keys: Default::default(),
@@ -112,7 +112,7 @@ async fn do_load<K, T, F>(
     pending: Vec<(HashSet<K>, ResSender<K, T>)>,
     f: F,
 ) where
-    K: Send + Sync + Hash + Eq + Clone + 'static,
+    K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
     T: Loader<K>,
     F: FnOnce(&HashMap<K, T::Value>),
 {
@@ -140,9 +140,9 @@ async fn do_load<K, T, F>(
 /// Trait for batch loading.
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-pub trait Loader<K: Send + Sync + Hash + Eq + Clone + 'static>: Send + Sync + 'static {
+pub trait Loader<K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static>: crate::SendAndSyncOrNot + 'static {
     /// type of value.
-    type Value: Send + Sync + Clone + 'static;
+    type Value: crate::SendAndSyncOrNot + Clone + 'static;
 
     /// Type of error.
     type Error: Send + Clone + 'static;
@@ -155,7 +155,7 @@ pub trait Loader<K: Send + Sync + Hash + Eq + Clone + 'static>: Send + Sync + 's
 ///
 /// Reference: <https://github.com/facebook/dataloader>
 pub struct DataLoader<T, C = NoCache> {
-    requests: Mutex<FnvHashMap<TypeId, Box<dyn Any + Send + Sync>>>,
+    requests: Mutex<FnvHashMap<TypeId, Box<dyn Any + crate::SendAndSyncOrNot>>>,
     cache_factory: C,
     delay: Duration,
     max_batch_size: usize,
@@ -219,7 +219,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// Enable/Disable cache of specified loader.
     pub fn enable_cache<K>(&self, enable: bool)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         let tid = TypeId::of::<K>();
@@ -235,7 +235,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// Use this `DataLoader` load a data.
     pub async fn load_one<K>(&self, key: K) -> Result<Option<T::Value>, T::Error>
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         let mut values = self.load_many(std::iter::once(key.clone())).await?;
@@ -244,7 +244,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
 
     fn update_cache<K>(&self, values: &HashMap<K, T::Value>)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         let tid = TypeId::of::<K>();
@@ -263,7 +263,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
 
     async fn immediate_load<K>(&self)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         let tid = TypeId::of::<K>();
@@ -291,7 +291,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// Use this `DataLoader` to load some data.
     pub async fn load_many<K, I>(&self, keys: I) -> Result<HashMap<K, T::Value>, T::Error>
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         I: IntoIterator<Item = K>,
         T: Loader<K>,
     {
@@ -374,7 +374,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// **NOTE: If the cache type is [NoCache], this function will not take effect. **
     pub async fn feed_many<K, I>(&self, values: I)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         I: IntoIterator<Item = (K, T::Value)>,
         T: Loader<K>,
     {
@@ -397,7 +397,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// **NOTE: If the cache type is [NoCache], this function will not take effect. **
     pub async fn feed_one<K>(&self, key: K, value: T::Value)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         self.feed_many(std::iter::once((key, value))).await;
@@ -408,7 +408,7 @@ impl<T, C: CacheFactory> DataLoader<T, C> {
     /// **NOTE: If the cache type is [NoCache], this function will not take effect. **
     pub fn clear<K>(&self)
     where
-        K: Send + Sync + Hash + Eq + Clone + 'static,
+        K: crate::SendAndSyncOrNot + Hash + Eq + Clone + 'static,
         T: Loader<K>,
     {
         let tid = TypeId::of::<K>();

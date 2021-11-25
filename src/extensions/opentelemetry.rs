@@ -31,7 +31,7 @@ impl<T> OpenTelemetry<T> {
     /// Use `tracer` to create an OpenTelemetry extension.
     pub fn new(tracer: T) -> OpenTelemetry<T>
     where
-        T: Tracer + Send + Sync,
+        T: Tracer + crate::SendAndSyncOrNot,
     {
         Self {
             tracer: Arc::new(tracer),
@@ -39,7 +39,7 @@ impl<T> OpenTelemetry<T> {
     }
 }
 
-impl<T: Tracer + Send + Sync> ExtensionFactory for OpenTelemetry<T> {
+impl<T: Tracer + crate::SendAndSyncOrNot> ExtensionFactory for OpenTelemetry<T> {
     fn create(&self) -> Arc<dyn Extension> {
         Arc::new(OpenTelemetryExtension {
             tracer: self.tracer.clone(),
@@ -53,7 +53,7 @@ struct OpenTelemetryExtension<T> {
 
 #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
 #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
-impl<T: Tracer + Send + Sync> Extension for OpenTelemetryExtension<T> {
+impl<T: Tracer + crate::SendAndSyncOrNot> Extension for OpenTelemetryExtension<T> {
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         next.run(ctx)
             .with_context(OpenTelemetryContext::current_with_span(

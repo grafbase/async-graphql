@@ -13,7 +13,7 @@ use crate::{
 #[Scalar(internal, name = "JSONObject")]
 impl<K, V> ScalarType for HashMap<K, V>
 where
-    K: ToString + FromStr + Eq + Hash + Send + Sync,
+    K: ToString + FromStr + Eq + Hash + crate::SendAndSyncOrNot,
     K::Err: Display,
     V: OutputType + InputType,
 {
