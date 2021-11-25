@@ -68,7 +68,8 @@ impl<T: DeserializeOwned + Serialize + Send + Sync> InputType for Json<T> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: Serialize + Send + Sync> OutputType for Json<T> {
     fn type_name() -> Cow<'static, str> {
         Cow::Borrowed("JSON")

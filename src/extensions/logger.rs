@@ -19,7 +19,8 @@ impl ExtensionFactory for Logger {
 
 struct LoggerExtension;
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl Extension for LoggerExtension {
     async fn parse_query(
         &self,

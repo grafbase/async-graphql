@@ -39,7 +39,8 @@ impl<C: CursorType, T> Edge<C, T, EmptyFields> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, E> ContainerType for Edge<C, T, E>
 where
     C: CursorType + Send + Sync,
@@ -60,7 +61,8 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, E> OutputType for Edge<C, T, E>
 where
     C: CursorType + Send + Sync,

@@ -171,7 +171,8 @@ pub fn generate(enum_args: &args::Enum) -> GeneratorResult<TokenStream> {
             }
         }
 
-        #[#crate_name::async_trait::async_trait]
+        #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+        #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
         impl #crate_name::OutputType for #ident {
             fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                 Self::__type_name()

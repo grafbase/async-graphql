@@ -155,7 +155,8 @@ pub async fn test_federation() {
 pub async fn test_find_entity_with_context() {
     struct MyLoader;
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+    #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     impl Loader<ID> for MyLoader {
         type Value = MyObj;
         type Error = Infallible;

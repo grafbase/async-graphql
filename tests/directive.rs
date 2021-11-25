@@ -84,7 +84,8 @@ pub async fn test_custom_directive() {
         suffix: String,
     }
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     impl CustomDirective for Concat {
         async fn resolve_field(
             &self,

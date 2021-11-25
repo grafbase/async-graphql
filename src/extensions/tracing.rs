@@ -49,7 +49,8 @@ impl ExtensionFactory for Tracing {
 #[derive(Default)]
 struct TracingExtension;
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl Extension for TracingExtension {
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         next.run(ctx)

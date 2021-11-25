@@ -70,7 +70,8 @@ pub fn generate(
         }
 
         #[allow(clippy::all, clippy::pedantic)]
-        #[#crate_name::async_trait::async_trait]
+        #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+        #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
         impl #generic #crate_name::OutputType for #self_ty #where_clause {
             fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                 ::std::borrow::Cow::Borrowed(#gql_typename)

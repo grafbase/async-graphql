@@ -58,7 +58,8 @@ pub mod rejection {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<B> FromRequest<B> for GraphQLRequest
 where
     B: http_body::Body + Unpin + Send + Sync + 'static,
@@ -88,7 +89,8 @@ impl GraphQLBatchRequest {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<B> FromRequest<B> for GraphQLBatchRequest
 where
     B: http_body::Body + Unpin + Send + Sync + 'static,

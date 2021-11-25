@@ -537,7 +537,8 @@ pub fn generate(
 
             #[allow(clippy::all, clippy::pedantic, clippy::suspicious_else_formatting)]
             #[allow(unused_braces, unused_variables, unused_parens, unused_mut)]
-            #[#crate_name::async_trait::async_trait]
+            #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+            #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
             impl #impl_generics #crate_name::resolver_utils::ContainerType for #self_ty #where_clause {
                 async fn resolve_field(&self, ctx: &#crate_name::Context<'_>) -> #crate_name::ServerResult<::std::option::Option<#crate_name::Value>> {
                     #(#resolvers)*
@@ -562,7 +563,8 @@ pub fn generate(
             }
 
             #[allow(clippy::all, clippy::pedantic)]
-            #[#crate_name::async_trait::async_trait]
+            #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+            #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
             impl #impl_generics #crate_name::OutputType for #self_ty #where_clause {
                 fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                     ::std::borrow::Cow::Borrowed(#gql_typename)
@@ -664,7 +666,8 @@ pub fn generate(
             let concrete_type = quote! { #ty<#(#params),*> };
 
             codes.push(quote! {
-                #[#crate_name::async_trait::async_trait]
+                #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+                #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
                 impl #crate_name::resolver_utils::ContainerType for #concrete_type {
                     async fn resolve_field(&self, ctx: &#crate_name::Context<'_>) -> #crate_name::ServerResult<::std::option::Option<#crate_name::Value>> {
                         self.__internal_resolve_field(ctx).await
@@ -675,7 +678,8 @@ pub fn generate(
                     }
                 }
 
-                #[#crate_name::async_trait::async_trait]
+                #[cfg_attr(feature = "single-threaded-runtime", #crate_name::async_trait::async_trait(?Send))]
+                #[cfg_attr(not(feature = "single-threaded-runtime"), #crate_name::async_trait::async_trait)]
                 impl #crate_name::OutputType for #concrete_type {
                     fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                         ::std::borrow::Cow::Borrowed(#gql_typename)

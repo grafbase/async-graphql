@@ -15,7 +15,8 @@
 这个扩展不会强迫你使用一些缓存策略，你可以选择你想要的缓存策略，你只需要实现 `CacheStorage` trait：
 
 ```rust
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 pub trait CacheStorage: Send + Sync + Clone + 'static {
     /// Load the query by `key`.
     async fn get(&self, key: String) -> Option<String>;

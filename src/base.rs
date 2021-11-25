@@ -55,7 +55,8 @@ pub trait InputType: Send + Sync + Sized {
 }
 
 /// Represents a GraphQL output type.
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 pub trait OutputType: Send + Sync {
     /// Type the name.
     fn type_name() -> Cow<'static, str>;
@@ -83,7 +84,8 @@ pub trait OutputType: Send + Sync {
     ) -> ServerResult<Value>;
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: OutputType + ?Sized> OutputType for &T {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
@@ -103,7 +105,8 @@ impl<T: OutputType + ?Sized> OutputType for &T {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: OutputType + Sync, E: Into<Error> + Send + Sync + Clone> OutputType for Result<T, E> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
@@ -130,7 +133,8 @@ impl<T: OutputType + Sync, E: Into<Error> + Send + Sync + Clone> OutputType for 
 /// A GraphQL object.
 pub trait ObjectType: ContainerType {}
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: ObjectType> ObjectType for &T {}
 
 /// A GraphQL interface.
@@ -142,7 +146,8 @@ pub trait UnionType: ContainerType {}
 /// A GraphQL input object.
 pub trait InputObjectType: InputType {}
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: OutputType + ?Sized> OutputType for Box<T> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
@@ -162,7 +167,8 @@ impl<T: OutputType + ?Sized> OutputType for Box<T> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: InputType> InputType for Box<T> {
     type RawValueType = T::RawValueType;
 
@@ -189,7 +195,8 @@ impl<T: InputType> InputType for Box<T> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: OutputType + ?Sized> OutputType for Arc<T> {
     fn type_name() -> Cow<'static, str> {
         T::type_name()
@@ -236,7 +243,8 @@ impl<T: InputType> InputType for Arc<T> {
 }
 
 #[doc(hidden)]
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 pub trait ComplexObject {
     fn fields(registry: &mut registry::Registry) -> Vec<(String, registry::MetaField)>;
 

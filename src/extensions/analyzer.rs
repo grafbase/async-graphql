@@ -23,7 +23,8 @@ struct AnalyzerExtension {
     validation_result: Mutex<Option<ValidationResult>>,
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl Extension for AnalyzerExtension {
     async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
         let mut resp = next.run(ctx).await;

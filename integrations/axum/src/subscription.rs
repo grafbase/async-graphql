@@ -23,7 +23,8 @@ use tower_service::Service;
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct GraphQLProtocol(WebSocketProtocols);
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<B: Send> FromRequest<B> for GraphQLProtocol {
     type Rejection = StatusCode;
 

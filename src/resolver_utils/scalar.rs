@@ -178,7 +178,8 @@ macro_rules! scalar_internal {
             }
         }
 
-        #[$crate::async_trait::async_trait]
+        #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+        #[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
         impl $crate::OutputType for $ty {
             fn type_name() -> ::std::borrow::Cow<'static, ::std::primitive::str> {
                 ::std::borrow::Cow::Borrowed($name)

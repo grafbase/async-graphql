@@ -12,7 +12,8 @@
 //! /// This loader simply converts the integer key into a string value.
 //! struct MyLoader;
 //!
-//! #[async_trait::async_trait]
+//! #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 //! impl Loader<i32> for MyLoader {
 //!     type Value = String;
 //!     type Error = Infallible;
@@ -137,7 +138,8 @@ async fn do_load<K, T, F>(
 }
 
 /// Trait for batch loading.
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 pub trait Loader<K: Send + Sync + Hash + Eq + Clone + 'static>: Send + Sync + 'static {
     /// type of value.
     type Value: Send + Sync + Clone + 'static;
@@ -428,7 +430,8 @@ mod tests {
 
     struct MyLoader;
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     impl Loader<i32> for MyLoader {
         type Value = i32;
         type Error = ();
@@ -439,7 +442,8 @@ mod tests {
         }
     }
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     impl Loader<i64> for MyLoader {
         type Value = i64;
         type Error = ();

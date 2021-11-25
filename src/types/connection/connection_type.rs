@@ -119,7 +119,8 @@ impl<C, T, EC, EE> Connection<C, T, EC, EE> {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, EC, EE> ContainerType for Connection<C, T, EC, EE>
 where
     C: CursorType + Send + Sync,
@@ -150,7 +151,8 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<C, T, EC, EE> OutputType for Connection<C, T, EC, EE>
 where
     C: CursorType + Send + Sync,

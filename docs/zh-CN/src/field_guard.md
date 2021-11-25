@@ -19,7 +19,8 @@ impl RoleGuard {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl Guard for RoleGuard {
     async fn check(&self, ctx: &Context<'_>) -> Result<()> {
         if ctx.data_opt::<Role>() == Some(&self.role) {
@@ -61,7 +62,8 @@ impl EqGuard {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl Guard for EqGuard {
     async fn check(&self, _ctx: &Context<'_>) -> Result<()> {
         if self.expect != self.actual {

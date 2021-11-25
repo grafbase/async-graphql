@@ -17,7 +17,8 @@ struct PersistedQuery {
 }
 
 /// Cache storage for persisted queries.
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 pub trait CacheStorage: Send + Sync + Clone + 'static {
     /// Load the query by `key`.
     async fn get(&self, key: String) -> Option<String>;
@@ -37,7 +38,8 @@ impl LruCacheStorage {
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl CacheStorage for LruCacheStorage {
     async fn get(&self, key: String) -> Option<String> {
         let mut cache = self.0.lock().await;
@@ -75,7 +77,8 @@ struct ApolloPersistedQueriesExtension<T> {
     storage: T,
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<T: CacheStorage> Extension for ApolloPersistedQueriesExtension<T> {
     async fn prepare_request(
         &self,

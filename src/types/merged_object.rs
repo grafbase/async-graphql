@@ -14,7 +14,8 @@ use crate::{
 #[doc(hidden)]
 pub struct MergedObject<A, B>(pub A, pub B);
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<A, B> ContainerType for MergedObject<A, B>
 where
     A: ContainerType,
@@ -37,7 +38,8 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<A, B> OutputType for MergedObject<A, B>
 where
     A: OutputType,
@@ -95,7 +97,8 @@ where
     }
 }
 
-#[async_trait::async_trait]
+#[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
 impl<A, B> SubscriptionType for MergedObject<A, B>
 where
     A: SubscriptionType,

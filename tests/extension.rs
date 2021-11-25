@@ -38,7 +38,8 @@ pub async fn test_extension_ctx() {
 
     struct MyExtensionImpl;
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     impl Extension for MyExtensionImpl {
         async fn parse_query(
             &self,
@@ -129,7 +130,8 @@ pub async fn test_extension_call_order() {
         calls: Arc<Mutex<Vec<&'static str>>>,
     }
 
-    #[async_trait::async_trait]
+    #[cfg_attr(feature = "single-threaded-runtime", async_trait::async_trait(?Send))]
+#[cfg_attr(not(feature = "single-threaded-runtime"), async_trait::async_trait)]
     #[allow(unused_variables)]
     impl Extension for MyExtensionImpl {
         async fn request(&self, ctx: &ExtensionContext<'_>, next: NextRequest<'_>) -> Response {
